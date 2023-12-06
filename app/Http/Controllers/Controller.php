@@ -10,4 +10,12 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    protected function errorResponse($errors)
+    {
+        return response()->json([
+            'success' => false,
+            'errors' => $errors
+        ]);
+    }
 }

@@ -26,7 +26,7 @@ class CustomAuthenticate
                 'message' => "Unauthorized"
             ], 403);
         }
-        $results = DB::select("select " . $guard . "_id from " . $guard . "_tokens WHERE token='" . $token . "'");
+        $results = DB::selectOne("select " . $guard . "_id from " . $guard . "_tokens WHERE token=?", [$token]);
 
         if (!$results) {
             return response()->json([
@@ -35,7 +35,7 @@ class CustomAuthenticate
             ], 403);
         }
 
-        $request->merge(['authenticated_id' => $results[0]->{$guard . "_id"}]);
+        $request->merge(['authenticated_id' => $results->{$guard . "_id"}]);
 
 
         return $next($request);

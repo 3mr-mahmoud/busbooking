@@ -1,8 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -17,10 +15,8 @@ use Illuminate\Support\Facades\Route;
 
 
 // admin routes
-Route::middleware('custom_auth:admin')->get('admin/me', function (Request $request) {
-    $admin = DB::select("select * from admins where id = " . $request->authenticated_id)[0];
-    return response()->json([
-        "success" => true,
-        "data" => $admin
-    ]);
-});
+require __DIR__ . "/admin.php";
+// driver routes
+require __DIR__ . "/driver.php";
+// customer routes
+require __DIR__ . "/customer.php";
