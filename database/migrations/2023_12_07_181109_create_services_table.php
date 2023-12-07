@@ -15,7 +15,12 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string("name");
+            $table->timestamp("created_at")->useCurrent();
+            $table->foreignId("created_by")->nullable();
+        });
+        Schema::table('services', function (Blueprint $table) {
+            $table->foreign("created_by")->references("id")->on("admins")->nullOnDelete()->cascadeOnUpdate();
         });
     }
 

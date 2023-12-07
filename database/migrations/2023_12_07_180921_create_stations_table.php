@@ -18,8 +18,12 @@ return new class extends Migration
             $table->string("name");
             $table->string("description")->nullable();
             $table->string("phone")->nullable();
-            $table->foreignId("created_by")->nullable();
             $table->timestamp("created_at")->useCurrent();
+
+            $table->foreignId("created_by")->nullable();
+        });
+        Schema::table('stations', function (Blueprint $table) {
+            $table->foreign("created_by")->references("id")->on("admins")->nullOnDelete()->cascadeOnUpdate();
         });
     }
 
