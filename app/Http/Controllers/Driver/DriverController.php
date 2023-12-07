@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Driver;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Controller;
 
-class AdminController extends Controller
+class DriverController extends Controller
 {
     public function login(Request $request)
     {
@@ -16,20 +17,20 @@ class AdminController extends Controller
             'password' => 'required|min:6'
         ]);
 
-        $admin = DB::selectOne("select * from admins where email = ?", [$request->email]);
+        $driver = DB::selectOne("select * from drivers where email = ?", [$request->email]);
 
-        if (!$admin) {
+        if (!$driver) {
             return $this->errorResponse(['email' => ['Provided Credentials are incorrect']]);
         }
 
-        if (!Hash::check($request->password, $admin->password)) {
+        if (!Hash::check($request->password, $driver->password)) {
             return $this->errorResponse(['password' => ['Provided Credentials are incorrect']]);
         }
 
         $token =  Str::random(255);
 
-        $inserted = DB::insert("INSERT INTO admin_tokens (admin_id,token) VALUES (:admin_id,:token)", [
-            ":admin_id" => $admin->id,
+        $inserted = DB::insert("INSERT INTO driver_tokens (driver_id,token) VALUES (:driver_id,:token)", [
+            ":driver_id" => $driver->id,
             ":token" => $token,
         ]);
 
@@ -38,29 +39,29 @@ class AdminController extends Controller
         }
 
 
-        unset($admin->password);
+        unset($driver->password);
 
         return response()->json([
             "success" => true,
             "data" => [
-                'admin' => $admin,
+                'driver' => $driver,
                 'token' => $token
             ]
         ]);
     }
     public function me(Request $request)
     {
-        $admin = DB::selectOne("select * from admins where id = " . $request->authenticated_id);
-        unset($admin->password);
+        $driver = DB::selectOne("select * from drivers where id = " . $request->authenticated_id);
+        unset($driver->password);
         return response()->json([
             "success" => true,
-            "data" => $admin
+            "data" => $driver
         ]);
     }
 
     public function logout(Request $request)
     {
-        $tokendeleted = DB::delete("delete from admin_tokens where admin_id = ? AND token = ?", [
+        $tokendeleted = DB::delete("delete from driver_tokens where driver_id = ? AND token = ?", [
             $request->authenticated_id,
             $request->bearerToken()
         ]);

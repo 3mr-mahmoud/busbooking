@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\DriverController;
+use App\Http\Controllers\Driver\DriverController;
 use Illuminate\Support\Facades\Route;
 
 
