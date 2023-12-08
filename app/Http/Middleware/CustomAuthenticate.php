@@ -23,7 +23,7 @@ class CustomAuthenticate
         if (!$token) {
             return response()->json([
                 'success' => false,
-                'message' => "Unauthorized"
+                'errors' => "Unauthorized"
             ], 403);
         }
         $results = DB::selectOne("select " . $guard . "_id from " . $guard . "_tokens WHERE token=?", [$token]);
@@ -31,7 +31,7 @@ class CustomAuthenticate
         if (!$results) {
             return response()->json([
                 'success' => false,
-                'message' => "Unauthorized"
+                'errors' => "Unauthorized"
             ], 403);
         }
 

@@ -22,7 +22,7 @@ return new class extends Migration
 
         Schema::table('route_station', function (Blueprint $table) {
             $table->foreign("route_id")->references("id")->on("routes")->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign("station_id")->references("id")->on("stations")->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign("station_id")->references("id")->on("stations")->restrictOnDelete()->cascadeOnUpdate();
         });
     }
 
