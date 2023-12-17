@@ -15,18 +15,17 @@ return new class extends Migration
     {
         Schema::create('buses', function (Blueprint $table) {
             $table->id();
-            $table->string("platenum")->unique();
+            $table->string("plate_number", 7)->unique();
             $table->string("model")->nullable();
-            $table->integer("capacity")->nullable();
-            $table->timestamp("added_at")->useCurrent();
+            $table->decimal("capacity")->nullable();
+            $table->timestamp("created_at")->useCurrent();
 
             $table->foreignId("created_by")->nullable();
-            $table->foreignId("category")->nullable();
-
+            $table->foreignId("bus_category_id")->nullable();
         });
         Schema::table('buses', function (Blueprint $table) {
             $table->foreign("created_by")->references("id")->on("admins")->nullOnDelete()->cascadeOnUpdate();
-            $table->foreign("category")->references("id")->on("bus_categories")->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign("bus_category_id")->references("id")->on("bus_categories")->nullOnDelete()->cascadeOnUpdate();
         });
     }
 

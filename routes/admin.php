@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\BusController;
 use App\Http\Controllers\Admin\RouteController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\StationController;
@@ -41,4 +42,12 @@ Route::prefix('admin')->middleware('custom_auth:admin')->group(function () {
     Route::post('bus-categories', [BusCategoryController::class, 'store']);
     Route::patch('bus-categories/{id}', [BusCategoryController::class, 'update']);
     Route::delete('bus-categories/{id}', [BusCategoryController::class, 'delete']);
+
+
+    Route::get('buses', [BusController::class, 'index']);
+    Route::get('buses/{id}', [BusController::class, 'find']);
+    Route::post('buses', [BusController::class, 'store']);
+    Route::patch('buses/{id}', [BusController::class, 'update']);
+    Route::patch('buses/{id}/seats/{seat_number}', [BusController::class, 'updateSeat']);
+    Route::delete('buses/{id}', [BusController::class, 'delete']);
 });
