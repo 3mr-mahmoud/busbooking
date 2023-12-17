@@ -159,7 +159,7 @@ class BusCategoryController extends Controller
         }
         $deleted = DB::delete("DELETE FROM bus_categories WHERE id = ?", [$busCategoryId]);
         if ($deleted == 0) {
-            return $this->errorResponse("Already Deleted", 404);
+            return $this->errorResponse("Not found", 404);
         }
         return response()->json([
             'success' => true,

@@ -267,7 +267,7 @@ class BusController extends Controller
         }
         $deleted = DB::delete("DELETE FROM buses WHERE id = ?", [$busId]);
         if ($deleted == 0) {
-            return $this->errorResponse("Already Deleted", 404);
+            return $this->errorResponse("Not found", 404);
         }
         return response()->json([
             'success' => true,

@@ -101,7 +101,7 @@ class ServiceController extends Controller
         }
         $deleted = DB::delete("DELETE FROM services WHERE id = ?", [$serviceId]);
         if ($deleted == 0) {
-            return $this->errorResponse("Already Deleted", 404);
+            return $this->errorResponse("Not found", 404);
         }
         return response()->json([
             'success' => true,

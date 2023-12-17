@@ -106,7 +106,7 @@ class StationController extends Controller
         }
         $deleted = DB::delete("DELETE FROM stations WHERE id = ?", [$stationId]);
         if ($deleted == 0) {
-            return $this->errorResponse("Already Deleted", 404);
+            return $this->errorResponse("Not found", 404);
         }
         return response()->json([
             'success' => true,
