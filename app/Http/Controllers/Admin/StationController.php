@@ -23,9 +23,7 @@ class StationController extends Controller
 
     public function find($stationId)
     {
-        if (!is_numeric($stationId)) {
-            abort(400); // bad request
-        }
+
 
         $station = DB::selectOne("Select stations.*, admins.name as creator_name from stations LEFT JOIN admins ON stations.created_by = admins.id where stations.id = ?", [$stationId]);
 
@@ -74,9 +72,7 @@ class StationController extends Controller
 
     public function update(Request $request, $stationId)
     {
-        if (!is_numeric($stationId)) {
-            abort(400); // bad request
-        }
+
         $request->validate([
             "name" => "required|string",
             "phone" => "nullable|numeric",
@@ -101,9 +97,7 @@ class StationController extends Controller
 
     public function delete($stationId)
     {
-        if (!is_numeric($stationId)) {
-            abort(400); // bad request
-        }
+
         $deleted = DB::delete("DELETE FROM stations WHERE id = ?", [$stationId]);
         if ($deleted == 0) {
             return $this->errorResponse("Not found", 404);

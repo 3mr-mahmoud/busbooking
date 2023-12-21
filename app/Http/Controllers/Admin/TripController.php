@@ -29,9 +29,7 @@ class TripController extends Controller
 
     public function find($tripId)
     {
-        if (!is_numeric($tripId)) {
-            abort(400); // bad request
-        }
+
 
         $trip = DB::selectOne("Select trips.*, 
         admins.name as creator_name,
@@ -49,6 +47,27 @@ class TripController extends Controller
             'success' => true,
             'data' => [
                 'trip' => $trip
+            ]
+        ]);
+    }
+
+
+    public function availableSeats($tripId)
+    {
+
+
+        $availableSeats = DB::select("Select bus_seats.* , 
+        IF(bus_seats.seat_number = trips.golden_seat_number, 1, 0) as is_golden 
+        from bus_seats
+        inner join trips ON trips.bus_id = bus_seats.bus_id AND trips.id = ?
+        where bus_seats.seat_number not IN (
+            Select seat_number from tickets where trip_id = ? 
+        )", [$tripId, $tripId]);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'available_seats' => $availableSeats
             ]
         ]);
     }
@@ -124,9 +143,6 @@ class TripController extends Controller
 
     public function update(Request $request, $tripId)
     {
-        if (!is_numeric($tripId)) {
-            abort(400); // bad request
-        }
 
         $trip = DB::selectOne("Select id from trips where id = ?", [$tripId]);
 
@@ -194,9 +210,7 @@ class TripController extends Controller
 
     public function delete($tripId)
     {
-        if (!is_numeric($tripId)) {
-            abort(400); // bad request
-        }
+
         $deleted = DB::delete("DELETE FROM trips WHERE id = ?", [$tripId]);
 
         if ($deleted == 0) {

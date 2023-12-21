@@ -35,7 +35,6 @@ return new class extends Migration
             $table->foreign("bus_id")->references("id")->on("buses")->restrictOnDelete()->cascadeOnUpdate();
             $table->foreign("route_id")->references("id")->on("routes")->restrictOnDelete()->cascadeOnUpdate();
             $table->foreign("driver_id")->references("id")->on("drivers")->restrictOnDelete()->cascadeOnUpdate();
-            $table->foreign(["bus_id", "golden_seat_number"])->references(["bus_id", "seat_number"])->on("bus_seats")->onDelete("restrict")->onUpdate("cascade");
         });
     }
 

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('driver_tokens', function (Blueprint $table) {
             $table->string("token");
             $table->foreignId("driver_id");
-            $table->foreign("driver_id")->references("id")->on("drivers");
+            $table->foreign("driver_id")->references("id")->on("drivers")->cascadeOnDelete()->cascadeOnUpdate();
             $table->primary(["token", "driver_id"]);
         });
     }

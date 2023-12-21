@@ -17,6 +17,7 @@ return new class extends Migration
             $table->bigInteger('phone')->unique();
             $table->string('email')->unique();
             $table->string('password');
+            $table->decimal('wallet_balance')->default(0);
             $table->timestamps();
         });
     }

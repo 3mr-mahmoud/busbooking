@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('admin_tokens', function (Blueprint $table) {
             $table->string("token");
             $table->foreignId("admin_id");
-            $table->foreign("admin_id")->references("id")->on("admins");
+            $table->foreign("admin_id")->references("id")->on("admins")->cascadeOnDelete()->cascadeOnUpdate();
             $table->primary(["token", "admin_id"]);
         });
     }

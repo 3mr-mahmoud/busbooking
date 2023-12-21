@@ -25,10 +25,6 @@ class BusController extends Controller
 
     public function find($busId)
     {
-        if (!is_numeric($busId)) {
-            abort(400); // bad request
-        }
-
         $bus = DB::selectOne("Select buses.*,
          admins.name as creator_name from buses 
          LEFT JOIN admins ON buses.created_by = admins.id 
@@ -144,9 +140,6 @@ class BusController extends Controller
 
     public function update(Request $request, $busId)
     {
-        if (!is_numeric($busId)) {
-            abort(400); // bad request
-        }
 
         $bus = DB::selectOne("Select id, (select count(1) from bus_seats where bus_id = ?) as seats from buses where buses.id = ?", [$busId, $busId]);
 
@@ -230,10 +223,6 @@ class BusController extends Controller
 
     public function updateSeat(Request $request, $busId, $seatNumber)
     {
-        if (!is_numeric($busId) || !is_numeric($seatNumber)) {
-            abort(400); // bad request
-        }
-
         $seat = DB::selectOne("Select * from bus_seats where bus_id = ? AND seat_number = ?", [$busId, $seatNumber]);
 
         if (!$seat) {
@@ -262,9 +251,7 @@ class BusController extends Controller
 
     public function delete($busId)
     {
-        if (!is_numeric($busId)) {
-            abort(400); // bad request
-        }
+
         $deleted = DB::delete("DELETE FROM buses WHERE id = ?", [$busId]);
         if ($deleted == 0) {
             return $this->errorResponse("Not found", 404);

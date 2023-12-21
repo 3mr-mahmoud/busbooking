@@ -154,9 +154,7 @@ class BusCategoryController extends Controller
 
     public function delete($busCategoryId)
     {
-        if (!is_numeric($busCategoryId)) {
-            abort(400); // bad request
-        }
+
         $deleted = DB::delete("DELETE FROM bus_categories WHERE id = ?", [$busCategoryId]);
         if ($deleted == 0) {
             return $this->errorResponse("Not found", 404);

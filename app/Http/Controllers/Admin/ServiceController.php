@@ -23,9 +23,7 @@ class ServiceController extends Controller
 
     public function find($serviceId)
     {
-        if (!is_numeric($serviceId)) {
-            abort(400); // bad request
-        }
+
 
         $service = DB::selectOne("Select services.*, admins.name as creator_name from services LEFT JOIN admins ON services.created_by = admins.id where services.id = ?", [$serviceId]);
 
@@ -72,9 +70,7 @@ class ServiceController extends Controller
 
     public function update(Request $request, $serviceId)
     {
-        if (!is_numeric($serviceId)) {
-            abort(400); // bad request
-        }
+
         $request->validate([
             "name" => "required|string",
         ]);
@@ -96,9 +92,7 @@ class ServiceController extends Controller
 
     public function delete($serviceId)
     {
-        if (!is_numeric($serviceId)) {
-            abort(400); // bad request
-        }
+
         $deleted = DB::delete("DELETE FROM services WHERE id = ?", [$serviceId]);
         if ($deleted == 0) {
             return $this->errorResponse("Not found", 404);

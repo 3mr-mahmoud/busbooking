@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('customer_tokens', function (Blueprint $table) {
             $table->string("token");
             $table->foreignId("customer_id");
-            $table->foreign("customer_id")->references("id")->on("customers");
+            $table->foreign("customer_id")->references("id")->on("customers")->cascadeOnDelete()->cascadeOnUpdate();
             $table->primary(["token", "customer_id"]);
         });
     }

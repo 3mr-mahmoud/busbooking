@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Route::pattern('id', '[0-9]+');
+        Route::pattern('seat_number', '[0-9]+');
+        Route::pattern('tid', '[0-9]+');
+        Route::pattern('tnumber', '[0-9]+');
     }
 }

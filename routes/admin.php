@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BusController;
 use App\Http\Controllers\Admin\RouteController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\StationController;
+use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\TripController;
 use App\Http\Controllers\BusCategoryController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,13 @@ Route::prefix('admin')->middleware('custom_auth:admin')->group(function () {
 
     Route::get('me', [AdminController::class, 'me']);
     Route::post('logout', [AdminController::class, 'logout']);
+
+
+    Route::get('admins', [AdminController::class, 'index']);
+    Route::get('admins/{id}', [AdminController::class, 'find']);
+    Route::post('admins', [AdminController::class, 'store']);
+    Route::patch('admins/{id}', [AdminController::class, 'update']);
+    Route::delete('admins/{id}', [AdminController::class, 'delete']);
 
     Route::get('stations', [StationController::class, 'index']);
     Route::get('stations/{id}', [StationController::class, 'find']);
@@ -55,7 +63,18 @@ Route::prefix('admin')->middleware('custom_auth:admin')->group(function () {
 
     Route::get('trips', [TripController::class, 'index']);
     Route::get('trips/{id}', [TripController::class, 'find']);
+    Route::get('trips/{id}/available-seats', [TripController::class, 'availableSeats']);
     Route::post('trips', [TripController::class, 'store']);
     Route::patch('trips/{id}', [TripController::class, 'update']);
     Route::delete('trips/{id}', [TripController::class, 'delete']);
+
+    Route::get('tickets', [TicketController::class, 'index']);
+    Route::post('tickets', [TicketController::class, 'store']);
+
+    Route::prefix("trips/{tid}/")->group(function () {
+        Route::get('tickets', [TicketController::class, 'tripTickets']);
+        Route::get('tickets/{tnumber}', [TicketController::class, 'find']);
+        Route::patch('tickets/{tnumber}', [TicketController::class, 'update']);
+        Route::delete('tickets/{tnumber}', [TicketController::class, 'delete']);
+    });
 });

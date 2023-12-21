@@ -161,9 +161,6 @@ class RouteController extends Controller
 
     public function delete($routeId)
     {
-        if (!is_numeric($routeId)) {
-            abort(400); // bad request
-        }
         $deleted = DB::delete("DELETE FROM routes WHERE id = ?", [$routeId]);
         if ($deleted == 0) {
             return $this->errorResponse("Not found", 404);
