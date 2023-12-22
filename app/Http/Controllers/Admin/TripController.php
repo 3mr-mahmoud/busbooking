@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -29,7 +30,6 @@ class TripController extends Controller
 
     public function find($tripId)
     {
-
 
         $trip = DB::selectOne("Select trips.*, 
         admins.name as creator_name,
@@ -80,7 +80,7 @@ class TripController extends Controller
             "bus_id" => "required|integer|min:1",
             "departure_time" => "required|date_format:Y-m-d H:i:s",
             "price" => "required|numeric",
-            "expected_duration" => "nullable|numeric",
+            "expected_duration" => "required|integer",
             "golden_seat_number" => "nullable|integer|min:1",
         ]);
 
@@ -156,7 +156,7 @@ class TripController extends Controller
             "bus_id" => "required|integer|min:1",
             "departure_time" => "required|date_format:Y-m-d H:i:s",
             "price" => "required|numeric",
-            "expected_duration" => "nullable|numeric",
+            "expected_duration" => "required|integer",
             "golden_seat_number" => "nullable|integer|min:1",
         ]);
 
@@ -264,15 +264,16 @@ class TripController extends Controller
         $bindings = [
             $request->driver_id,
             $request->departure_time,
+            $request->departure_time
         ];
-        $availableQuery = "select * from trips where driver_id = ? AND arrival_time IS NULL AND departure_time <= ? ";
+        $availableQuery = "select * from trips where driver_id = ? AND arrival_time IS NULL AND departure_time <= ?  AND date_add(departure_time, interval COALESCE(expected_duration, 0) minute) >= ?";
         if ($tripId) {
-            $availableQuery .= "AND id != ?";
+            $availableQuery .= " AND id != ?";
             $bindings[] = $tripId;
         }
         $result = DB::selectOne($availableQuery, $bindings);
         if ($result) {
-            return $this->errorResponse(["driver_id" => ["Driver will be busy on another trip ( " . $result->id . " ) @ " . $result->departure_time]], 422); // validation error
+            return $this->errorResponse(["driver_id" => ["Driver will be busy on another trip ( " . $result->id . " ) @ " . $result->departure_time . ' with expected end time ' . Carbon::parse($result->departure_time)->addMinutes($result->expected_duration)]], 422); // validation error
         }
         // no errors
         return false;
@@ -292,15 +293,16 @@ class TripController extends Controller
         $bindings = [
             $request->bus_id,
             $request->departure_time,
+            $request->departure_time,
         ];
-        $availableQuery = "select * from trips where bus_id = ? AND arrival_time IS NULL AND departure_time <= ? ";
+        $availableQuery = "select * from trips where bus_id = ? AND arrival_time IS NULL AND departure_time <= ?  AND date_add(departure_time, interval COALESCE(expected_duration, 0) minute) >= ? ";
         if ($tripId) {
             $availableQuery .= "AND id != ?";
             $bindings[] = $tripId;
         }
         $result = DB::selectOne($availableQuery, $bindings);
         if ($result) {
-            return $this->errorResponse(["bus_id" => ["Bus will be busy on another trip ( " . $result->id . " ) @ " . $result->departure_time]], 422); // validation error
+            return $this->errorResponse(["bus_id" => ["Bus will be busy on another trip ( " . $result->id . " ) @ " . $result->departure_time . ' with expected end time ' . Carbon::parse($result->departure_time)->addMinutes($result->expected_duration)]], 422); // validation error
         }
         // no errors
         return false;

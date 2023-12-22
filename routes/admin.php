@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BusController;
+use App\Http\Controllers\Admin\DriverController;
 use App\Http\Controllers\Admin\RouteController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\StationController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\TripController;
-use App\Http\Controllers\BusCategoryController;
+use App\Http\Controllers\Admin\BusCategoryController;
+use App\Http\Controllers\Admin\CustomerController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -18,6 +20,17 @@ Route::prefix('admin')->middleware('custom_auth:admin')->group(function () {
     Route::get('me', [AdminController::class, 'me']);
     Route::post('logout', [AdminController::class, 'logout']);
 
+
+    Route::get('customers', [CustomerController::class, 'index']);
+    Route::get('customers/{id}', [CustomerController::class, 'find']);
+    Route::patch('customers/{id}', [CustomerController::class, 'update']);
+    Route::delete('customers/{id}', [CustomerController::class, 'delete']);
+
+    Route::get('drivers', [DriverController::class, 'index']);
+    Route::get('drivers/{id}', [DriverController::class, 'find']);
+    Route::post('drivers', [DriverController::class, 'store']);
+    Route::patch('drivers/{id}', [DriverController::class, 'update']);
+    Route::delete('drivers/{id}', [DriverController::class, 'delete']);
 
     Route::get('admins', [AdminController::class, 'index']);
     Route::get('admins/{id}', [AdminController::class, 'find']);

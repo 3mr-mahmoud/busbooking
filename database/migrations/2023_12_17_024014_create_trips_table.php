@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamp("departure_time");
             $table->timestamp("arrival_time")->nullable();
             $table->decimal("price");
-            $table->decimal("expected_duration")->comment("in minutes")->nullable();
+            $table->integer("expected_duration")->comment("in minutes");
             $table->timestamp("actual_departure_time")->nullable();
 
             $table->unsignedBigInteger("golden_seat_number")->nullable();

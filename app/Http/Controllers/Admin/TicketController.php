@@ -97,11 +97,11 @@ class TicketController extends Controller
         $inserted = DB::insert(
             "Insert INTO tickets 
             (ticket_number, seat_number, trip_id, customer_id, payment_method ) 
-            Values (:ticket_number, :seat_number, :trip_id, :customer_id, :payment_method )",
+            select COALESCE(max(ticket_number) + 1,1), :seat_number, :trip_id, :customer_id, :payment_method from tickets where trip_id = :tic_trip_id limit 1",
             [
-                ":ticket_number" => $request->seat_number,
                 ":seat_number" => $request->seat_number,
                 ":trip_id" => $request->trip_id,
+                ":tic_trip_id" => $request->trip_id,
                 ":customer_id" => $request->customer_id,
                 ":payment_method" => $request->payment_method,
             ]

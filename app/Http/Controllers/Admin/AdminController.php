@@ -29,7 +29,7 @@ class AdminController extends Controller
 
         $token =  Str::random(255);
 
-        $inserted = DB::insert("INSERT INTO admin_tokens (admin_id,token) VALUES (:admin_id,:token)", [
+        $inserted = DB::insert("call insert_admin_token(:admin_id,:token)", [
             ":admin_id" => $admin->id,
             ":token" => $token,
         ]);
@@ -84,7 +84,7 @@ class AdminController extends Controller
             return $this->errorResponse("Insufficient Permissions", 403);
         }
 
-        $admin = DB::selectOne("select * from admins where id = ? ", [$adminId]);
+        $admin = DB::selectOne("call select_admin(?)", [$adminId]);
         unset($admin->password);
         return response()->json([
             "success" => true,
@@ -155,6 +155,15 @@ class AdminController extends Controller
             'password' => 'nullable|min:6',
             'superadmin' => 'nullable|boolean'
         ]);
+
+
+        if ($resp = $this->handlePhoneErrors($request, $adminId)) {
+            return $resp;
+        }
+
+        if ($resp = $this->handleEmailErrors($request, $adminId)) {
+            return $resp;
+        }
 
 
 

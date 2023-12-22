@@ -16,7 +16,7 @@
 
 // admin routes
 require __DIR__ . "/admin.php";
-// driver routes
-require __DIR__ . "/driver.php";
 // customer routes
 require __DIR__ . "/customer.php";
+// driver routes
+require __DIR__ . "/driver.php";
