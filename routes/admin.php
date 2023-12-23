@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\TripController;
 use App\Http\Controllers\Admin\BusCategoryController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -85,6 +86,8 @@ Route::prefix('admin')->middleware('custom_auth:admin')->group(function () {
     Route::post('tickets', [TicketController::class, 'store']);
 
     Route::prefix("trips/{tid}/")->group(function () {
+        Route::get('reviews', [ReviewController::class, 'index']);
+        Route::get('reviews/{cid}', [ReviewController::class, 'find']);
         Route::get('tickets', [TicketController::class, 'tripTickets']);
         Route::get('tickets/{tnumber}', [TicketController::class, 'find']);
         Route::patch('tickets/{tnumber}', [TicketController::class, 'update']);

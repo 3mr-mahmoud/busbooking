@@ -51,7 +51,7 @@ class AdminController extends Controller
     }
     public function me(Request $request)
     {
-        $admin = DB::selectOne("select * from admins where id = " . $request->authenticated_id);
+        $admin = DB::selectOne("call select_admin(?)", [$request->authenticated_id]);
         unset($admin->password);
         return response()->json([
             "success" => true,
@@ -63,7 +63,7 @@ class AdminController extends Controller
 
     public function index(Request $request)
     {
-        $authenticatedAdmin = DB::selectOne("select superadmin from admins where id = ?", [$request->authenticated_id]);
+        $authenticatedAdmin = DB::selectOne("call select_superadmin_flag(?)", [$request->authenticated_id]);
         if (!$authenticatedAdmin->superadmin) {
             return $this->errorResponse("Insufficient Permissions", 403);
         }
@@ -79,7 +79,7 @@ class AdminController extends Controller
 
     public function find(Request $request, $adminId)
     {
-        $authenticatedAdmin = DB::selectOne("select superadmin from admins where id = ?", [$request->authenticated_id]);
+        $authenticatedAdmin = DB::selectOne("call select_superadmin_flag(?)", [$request->authenticated_id]);
         if (!$authenticatedAdmin->superadmin) {
             return $this->errorResponse("Insufficient Permissions", 403);
         }
@@ -96,7 +96,7 @@ class AdminController extends Controller
 
     public function store(Request $request)
     {
-        $admin = DB::selectOne("select superadmin from admins where id = ?", [$request->authenticated_id]);
+        $admin = DB::selectOne("call select_superadmin_flag(?)", [$request->authenticated_id]);
         if (!$admin->superadmin) {
             return $this->errorResponse("Insufficient Permissions", 403);
         }
@@ -136,13 +136,13 @@ class AdminController extends Controller
 
     public function update(Request $request, $adminId)
     {
-        $authenticatedAdmin = DB::selectOne("select superadmin from admins where id = ?", [$request->authenticated_id]);
+        $authenticatedAdmin = DB::selectOne("call select_superadmin_flag(?)", [$request->authenticated_id]);
         // accessed only by superadmin or normal admin updating his data
         if (!$authenticatedAdmin->superadmin && $request->authenticated_id != $adminId) {
             return $this->errorResponse("Insufficient Permissions", 403);
         }
 
-        $admin = DB::selectOne("select * from admins where id = ?", [$adminId]);
+        $admin = DB::selectOne("call select_admin(?)", [$adminId]);
 
         if (!$admin) {
             return $this->errorResponse("Not Found", 404);
@@ -179,11 +179,7 @@ class AdminController extends Controller
             $superadmin = 0;
         }
 
-        DB::update("UPDATE admins SET name = :name, phone = :phone,
-         email = :email, password = :password,
-        superadmin = :superadmin
-        WHERE id = :id
-        ", [
+        DB::update("call update_admin(:id, :name, :phone, :email, :password, :superadmin)", [
             ":id" => $adminId,
             ":name" => $request->name,
             ":phone" => $request->phone,
@@ -199,7 +195,7 @@ class AdminController extends Controller
 
     public function delete(Request $request, $adminId)
     {
-        $authenticatedAdmin = DB::selectOne("select superadmin from admins where id = ?", [$request->authenticated_id]);
+        $authenticatedAdmin = DB::selectOne("call select_superadmin_flag(?)", [$request->authenticated_id]);
         // accessed only by superadmin or normal admin updating his data
         if (!$authenticatedAdmin->superadmin) {
             return $this->errorResponse("Insufficient Permissions", 403);

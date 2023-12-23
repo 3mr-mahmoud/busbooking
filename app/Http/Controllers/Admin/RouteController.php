@@ -24,12 +24,12 @@ class RouteController extends Controller
 
     public function find($routeId)
     {
-        $route = DB::selectOne("Select routes.*, admins.name as creator_name from routes LEFT JOIN admins ON routes.created_by = admins.id where routes.id = ?", [$routeId]);
+        $route = DB::selectOne("call select_route_with_creator(?)", [$routeId]);
         if (!$route) {
             return $this->errorResponse("Not Found", 404);
         }
 
-        $routeStations = DB::select("Select stations.name, stations.id ,route_station.`order`  from route_station LEFT JOIN stations ON stations.id = route_station.station_id where route_station.route_id = ? ORDER BY route_station.`order` asc", [$routeId]);
+        $routeStations = DB::select("call select_route_stations(?)", [$routeId]);
         $route->stations = $routeStations;
 
         return response()->json([
@@ -87,16 +87,7 @@ class RouteController extends Controller
 
             DB::commit();
 
-            $route = DB::selectOne("Select routes.*, admins.name as creator_name from routes LEFT JOIN admins ON routes.created_by = admins.id where routes.id = ?", [$routeId]);
-            $routeStations = DB::select("Select stations.name, stations.id ,route_station.`order`  from route_station LEFT JOIN stations ON stations.id = route_station.station_id where route_station.route_id = ? ORDER BY route_station.`order` asc", [$routeId]);
-            $route->stations = $routeStations;
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'route' => $route
-                ]
-            ]);
+            return $this->find($routeId);
         } catch (Exception $e) {
             DB::rollBack();
             return $this->errorResponse($e->getMessage(), 500);
@@ -114,18 +105,7 @@ class RouteController extends Controller
             ":name" => $request->name,
         ]);
 
-        $route = DB::selectOne("Select routes.*, admins.name as creator_name from routes LEFT JOIN admins ON routes.created_by = admins.id where routes.id = ?", [$routeId]);
-        if ($route) {
-            $routeStations = DB::select("Select stations.name, stations.id ,route_station.`order`  from route_station LEFT JOIN stations ON stations.id = route_station.station_id where route_station.route_id = ? ORDER BY route_station.`order` asc", [$routeId]);
-            $route->stations = $routeStations;
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'route' => $route
-            ]
-        ]);
+        return $this->find($routeId);
     }
 
     public function updateStations(Request $request, $routeId)
@@ -147,16 +127,7 @@ class RouteController extends Controller
 
         DB::insert($query);
 
-        $route = DB::selectOne("Select routes.*, admins.name as creator_name from routes LEFT JOIN admins ON routes.created_by = admins.id where routes.id = ?", [$routeId]);
-        $routeStations = DB::select("Select stations.name, stations.id ,route_station.`order`  from route_station LEFT JOIN stations ON stations.id = route_station.station_id where route_station.route_id = ? ORDER BY route_station.`order` asc", [$routeId]);
-        $route->stations = $routeStations;
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'route' => $route
-            ]
-        ]);
+        return $this->find($routeId);
     }
 
     public function delete($routeId)

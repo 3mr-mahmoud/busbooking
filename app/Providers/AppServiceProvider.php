@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         Route::pattern('id', '[0-9]+');
         Route::pattern('seat_number', '[0-9]+');
         Route::pattern('tid', '[0-9]+');
+        Route::pattern('cid', '[0-9]+');
         Route::pattern('tnumber', '[0-9]+');
     }
 }

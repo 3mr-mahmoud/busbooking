@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('reviews', function (Blueprint $table) {
             $table->foreignId("customer_id");
             $table->foreignId("trip_id");
-            $table->text("comment");
+            $table->text("comment")->nullable();
             $table->integer("stars")->max(5)->min(1);
             $table->primary(['customer_id', 'trip_id']);
             $table->foreign('customer_id')->references("id")->on("customers")->cascadeOnDelete()->cascadeOnUpdate();

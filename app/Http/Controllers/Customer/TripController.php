@@ -149,6 +149,37 @@ class TripController extends Controller
         }
     }
 
+    public function review(Request $request, $tripId)
+    {
+        // search for ended trips in the trips belonging to that user with the given id
+        $trip = DB::selectOne("select * from trips WHERE id = ? AND arrival_time IS NOT NULL AND id in (select trip_id from tickets where customer_id = ?)
+        ", [$tripId, $request->authenticated_id]);
+        if (!$trip) {
+            return $this->errorResponse("Not Found or trip is still ongoing", 404);
+        }
+
+        $request->validate([
+            'stars' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:600',
+        ]);
+
+        $inserted = DB::insert(
+            "Insert INTO reviews 
+        (customer_id, trip_id, stars, comment ) 
+        VALUES (:customer_id, :trip_id, :stars, :comment)",
+            [
+                ":stars" => $request->stars,
+                ":trip_id" => $tripId,
+                ":customer_id" => $request->authenticated_id,
+                ":comment" => $request->comment,
+            ]
+        );
+
+        return response()->json([
+            'success' => $inserted,
+        ]);
+    }
+
     private function getAvailableTrips($request)
     {
         $query = "Select 

@@ -25,10 +25,7 @@ class BusController extends Controller
 
     public function find($busId)
     {
-        $bus = DB::selectOne("Select buses.*,
-         admins.name as creator_name from buses 
-         LEFT JOIN admins ON buses.created_by = admins.id 
-         where buses.id = ?", [$busId]);
+        $bus = DB::selectOne("call select_bus_with_creator(?)", [$busId]);
 
         if (!$bus) {
             return $this->errorResponse("Not Found", 404);
@@ -68,9 +65,8 @@ class BusController extends Controller
                 return $this->errorResponse(["plate_number" => ["Plate Number is used before"]], 422); // validation error
             }
 
-            $inserted = DB::insert(
-                "Insert INTO buses (plate_number, model, capacity, bus_category_id, created_by) 
-                Values (:plate_number, :model, :capacity, :bus_category_id, :created_by)",
+            $inserted = DB::selectOne(
+                "CALL insert_bus(:plate_number, :model, :capacity, :bus_category_id, :created_by);",
                 [
                     ":plate_number" => $request->plate_number,
                     ":model" => $request->model,
@@ -80,11 +76,11 @@ class BusController extends Controller
                 ]
             );
 
-            if (!$inserted) {
+            if (!$inserted->inserted_id) {
                 return $this->errorResponse(["Internal Server Error"], 500); // internal server error happened
             }
 
-            $busId = DB::getPdo()->lastInsertId(); // get the last insertion id
+            $busId = $inserted->inserted_id; // get the last insertion id
 
             $seatsQuery = $this->generateBusSeatsQuery($busId, $request->seats);
 
@@ -94,25 +90,8 @@ class BusController extends Controller
                 return $this->errorResponse(["Internal Server Error"], 500); // internal server error happened
             }
 
-            $bus = DB::selectOne("Select buses.*,
-         admins.name as creator_name from buses 
-         LEFT JOIN admins ON buses.created_by = admins.id 
-         where buses.id = ?", [$busId]);
-
-            if (!$bus) {
-                return $this->errorResponse("Not Found", 404);
-            }
-
-            $busSeats = DB::select("Select * from bus_seats where bus_id = ? ", [$busId]);
-            $bus->seats = $busSeats;
-
             DB::commit();
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'bus' => $bus
-                ]
-            ]);
+            return $this->find($busId);
         } catch (Exception $e) {
             // if transaction failed discard database changes
             DB::rollBack();
@@ -140,8 +119,7 @@ class BusController extends Controller
 
     public function update(Request $request, $busId)
     {
-
-        $bus = DB::selectOne("Select id, (select count(1) from bus_seats where bus_id = ?) as seats from buses where buses.id = ?", [$busId, $busId]);
+        $bus = DB::selectOne("call select_bus_with_seats(?)", [$busId]);
 
         if (!$bus) {
             return $this->errorResponse("Not Found", 404);
@@ -170,8 +148,17 @@ class BusController extends Controller
             DB::beginTransaction();
             // handle seats number change
             if ($request->seats < $bus->seats) {
+                // check if the seats going to be deleted is in ticket
+                $seats = DB::select("SELECT DISTINCT(tick.seat_number) FROM 
+                tickets AS tick 
+                LEFT JOIN trips AS trip ON trip.id=tick.trip_id
+                LEFT JOIN bus_seats AS seats ON trip.bus_id=seats.bus_id AND tick.seat_number = seats.seat_number
+                where seats.seat_number > ? AND seats.bus_id= ?", [$request->seats, $busId]);
+                if (count($seats)) {
+                    return $this->errorResponse(["seats" => ["seats ( " . implode(",", array_column($seats, 'seat_number')) . " ) are reserved in tickets"]], 422); // validation error
+                }
                 // delete if the seats number decrease
-                DB::delete("DELETE FROM bus_seats WHERE bus_id = ? AND seat_number > ?", [$busId, $request->seats]);
+                DB::delete("call delete_seats_greaterthan(?, ?)", [$busId, $request->seats]);
             } elseif ($request->seats > $bus->seats) {
                 $seatsQuery = $this->generateBusSeatsQuery($busId, $request->seats, $bus->seats);
 
@@ -194,26 +181,9 @@ class BusController extends Controller
                 ]
             );
 
-            $bus = DB::selectOne("Select buses.*,
-            admins.name as creator_name from buses 
-            LEFT JOIN admins ON buses.created_by = admins.id 
-            where buses.id = ?", [$busId]);
-
-            if (!$bus) {
-                return $this->errorResponse("Not Found", 404);
-            }
-
-            $busSeats = DB::select("Select * from bus_seats where bus_id = ? ", [$busId]);
-            $bus->seats = $busSeats;
-
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'bus' => $bus
-                ]
-            ]);
+            return $this->find($busId);
         } catch (Exception $e) {
             // if transaction failed discard database changes
             DB::rollBack();
