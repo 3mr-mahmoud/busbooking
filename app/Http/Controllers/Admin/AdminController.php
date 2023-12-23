@@ -20,11 +20,11 @@ class AdminController extends Controller
         $admin = DB::selectOne("select * from admins where email = ?", [$request->email]);
 
         if (!$admin) {
-            return $this->errorResponse(['email' => ['Provided Credentials are incorrect']]);
+            return $this->errorResponse(['email' => ['Provided Credentials are incorrect']], 422);
         }
 
         if (!Hash::check($request->password, $admin->password)) {
-            return $this->errorResponse(['password' => ['Provided Credentials are incorrect']]);
+            return $this->errorResponse(['password' => ['Provided Credentials are incorrect']], 422);
         }
 
         $token =  Str::random(255);
