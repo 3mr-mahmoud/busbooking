@@ -44,7 +44,7 @@ class AdminController extends Controller
         return response()->json([
             "success" => true,
             "data" => [
-                'admin' => $admin,
+                'user' => $admin,
                 'token' => $token
             ]
         ]);

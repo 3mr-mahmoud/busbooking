@@ -20,11 +20,11 @@ class DriverController extends Controller
         $driver = DB::selectOne("select * from drivers where email = ?", [$request->email]);
 
         if (!$driver) {
-            return $this->errorResponse(['email' => ['Provided Credentials are incorrect']]);
+            return $this->errorResponse(['email' => ['Provided Credentials are incorrect']], 422);
         }
 
         if (!Hash::check($request->password, $driver->password)) {
-            return $this->errorResponse(['password' => ['Provided Credentials are incorrect']]);
+            return $this->errorResponse(['password' => ['Provided Credentials are incorrect']], 422);
         }
 
         $token =  Str::random(255);
@@ -44,7 +44,7 @@ class DriverController extends Controller
         return response()->json([
             "success" => true,
             "data" => [
-                'driver' => $driver,
+                'user' => $driver,
                 'token' => $token
             ]
         ]);
@@ -55,7 +55,9 @@ class DriverController extends Controller
         unset($driver->password);
         return response()->json([
             "success" => true,
-            "data" => $driver
+            "data" => [
+                'user' => $driver
+            ]
         ]);
     }
 

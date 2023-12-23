@@ -44,7 +44,7 @@ class CustomerController extends Controller
         return response()->json([
             "success" => true,
             "data" => [
-                'customer' => $customer,
+                'user' => $customer,
                 'token' => $token
             ]
         ]);
@@ -55,7 +55,9 @@ class CustomerController extends Controller
         unset($customer->password);
         return response()->json([
             "success" => true,
-            "data" => $customer
+            "data" => [
+                'user' => $customer
+            ]
         ]);
     }
 
