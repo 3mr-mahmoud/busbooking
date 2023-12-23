@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\TripController;
 use App\Http\Controllers\Admin\BusCategoryController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ReviewController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,8 @@ Route::prefix('admin')->middleware('custom_auth:admin')->group(function () {
     Route::get('me', [AdminController::class, 'me']);
     Route::post('logout', [AdminController::class, 'logout']);
 
+
+    Route::get('dashboard', [DashboardController::class, 'getStats']);
 
     Route::get('customers', [CustomerController::class, 'index']);
     Route::get('customers/{id}', [CustomerController::class, 'find']);
