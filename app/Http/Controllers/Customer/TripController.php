@@ -17,20 +17,24 @@ class TripController extends Controller
         trips.driver_id,
         trips.route_id,
         trips.departure_time,
+        trips.actual_departure_time,
+        trips.arrival_time,
         trips.price,
         trips.expected_duration,
+        tickets.seat_number,
         buses.plate_number,
         buses.model,
         bus_categories.name as bus_category_name,
         drivers.name as driver_name,
-        routes.name as route_name
-        from trips 
+        routes.name as route_name,
+        IF(ISNULL(trips.actual_departure_time), NULL, trips.golden_seat_number) as golden_seat
+        from tickets 
+        LEFT JOIN trips ON trips.id = tickets.trip_id 
         LEFT JOIN routes ON trips.route_id = routes.id
         LEFT JOIN drivers ON trips.driver_id = drivers.id
         LEFT JOIN buses ON trips.bus_id = buses.id
-        LEFT JOIN bus_categories ON bus_categories.id = buses.bus_category_id
-        WHERE trips.id in (select trip_id from tickets where customer_id = ?)
-        ", [$request->authenticated_id]);
+        LEFT JOIN bus_categories ON bus_categories.id = buses.bus_category_id 
+        where tickets.customer_id = ?", [$request->authenticated_id]);
 
 
         return response()->json([
@@ -49,11 +53,13 @@ class TripController extends Controller
         trips.bus_id,
         trips.driver_id,
         trips.route_id,
+        trips.actual_departure_time,
         trips.departure_time,
         trips.price,
         trips.expected_duration,
         buses.plate_number,
         buses.model,
+        bus_categories.id as bus_category_id,
         bus_categories.name as bus_category_name,
         drivers.name as driver_name,
         routes.name as route_name
@@ -67,6 +73,12 @@ class TripController extends Controller
             return $this->errorResponse("Not Found", 404);
         }
         unset($trip->golden_seat_number);
+
+        $trip->route_stations = DB::select("call select_route_stations(?)", [$trip->route_id]);
+
+        $trip->category_services = DB::select("Select services.name, services.id  from bus_category_service LEFT JOIN services ON services.id = bus_category_service.service_id where bus_category_service.bus_category_id = ? ", [$trip->bus_category_id]);
+
+        $trip->seats = DB::select("select *, not exists(select seat_number from tickets where trip_id = ? AND tickets.seat_number = bus_seats.seat_number) as available from bus_seats where bus_id = ?", [$trip->id, $trip->bus_id]);
         return response()->json([
             'success' => true,
             'data' => [

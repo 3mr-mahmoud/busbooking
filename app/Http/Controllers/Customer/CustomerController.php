@@ -67,7 +67,7 @@ class CustomerController extends Controller
 
         $request->validate([
             'name' => 'required|string',
-            'phone' => 'required|integer|digits_between:6,11',
+            'phone' => 'required|regex:[0-9]+|digits_between:6,12',
             'email' => 'required|email',
             'password' => 'required|min:6|confirmed',
         ]);
@@ -106,7 +106,7 @@ class CustomerController extends Controller
 
         $request->validate([
             'name' => 'required|string',
-            'phone' => 'required|integer|digits_between:6,11',
+            'phone' => 'required|regex:/[0-9]+/|digits_between:6,12',
             'email' => 'required|email',
             'password' => 'nullable|min:6'
         ]);
