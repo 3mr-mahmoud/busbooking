@@ -72,7 +72,19 @@ class TripController extends Controller
             return $this->errorResponse("Not Found", 404);
         }
 
-        DB::update("UPDATE trips set actual_departure_time = NOW() where id = ? AND actual_departure_time IS NULL", [$tripId]);
+        // set actual departure time if it's not setted before
+
+        $updated = DB::update("UPDATE trips set actual_departure_time = NOW() where id = ? AND actual_departure_time IS NULL", [$tripId]);
+
+        // if updated rows then this is the first time 
+        // I should refund the golden seat number ticket price to the customer wallet
+        if ($updated) {
+            $trip = DB::selectOne("select * from trips where id = ?", [$tripId]);
+            if ($trip->golden_seat_number) {
+                DB::update("UPDATE customers set wallet_balance = wallet_balance + ? 
+            where customers.id = (select customer_id from tickets where trip_id = ? and seat_number = ?)", [$trip->price, $tripId, $trip->golden_seat_number]);
+            }
+        }
 
         return response()->json([
             'success' => true,
