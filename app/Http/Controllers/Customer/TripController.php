@@ -193,14 +193,14 @@ class TripController extends Controller
         buses.plate_number,
         buses.model,
         bus_categories.name as bus_category_name,
-        drivers.name as driver_name,
-        routes.name as route_name
+        routes.name as route_name,
+        (SELECT COUNT(*) FROM bus_seats WHERE trips.bus_id = bus_seats.bus_id) - (SELECT COUNT(*) FROM tickets WHERE tickets.trip_id = trips.id) as available_seats 
         from trips 
         LEFT JOIN routes ON trips.route_id = routes.id
         LEFT JOIN drivers ON trips.driver_id = drivers.id
         LEFT JOIN buses ON trips.bus_id = buses.id
         LEFT JOIN bus_categories ON bus_categories.id = buses.bus_category_id
-        WHERE arrival_time IS NULL AND (SELECT COUNT(*) FROM tickets WHERE tickets.trip_id = 3) < (SELECT COUNT(*) FROM bus_seats WHERE trips.bus_id = 1) ";
+        WHERE arrival_time IS NULL AND (SELECT COUNT(*) FROM tickets WHERE tickets.trip_id = trips.id) < (SELECT COUNT(*) FROM bus_seats WHERE trips.bus_id = bus_seats.bus_id) ";
         $conditionsStr = "";
         $bindings = [];
         if ($request->from) {

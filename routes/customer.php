@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Customer\CustomerController;
+use App\Http\Controllers\Customer\RouteController;
 use App\Http\Controllers\Customer\TripController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,9 @@ Route::prefix('customer')->middleware('custom_auth:customer')->group(function ()
     Route::get('me', [CustomerController::class, 'me']);
     Route::post('logout', [CustomerController::class, 'logout']);
     Route::patch('profile', [CustomerController::class, 'updateProfile']);
+
+    Route::get('routes', [RouteController::class, 'index']);
+    Route::get('routes/{id}', [RouteController::class, 'find']);
 
     Route::get('trips/my-trips', [TripController::class, 'customerTrips']);
     Route::get('trips/available', [TripController::class, 'available']);
