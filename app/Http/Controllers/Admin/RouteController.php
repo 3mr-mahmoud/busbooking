@@ -24,7 +24,7 @@ class RouteController extends Controller
 
     public function find($routeId)
     {
-        $route = DB::selectOne("call select_route_with_creator(?)", [$routeId]);
+        $route = DB::selectOne("call select_routes_with_creator(?)", [$routeId]);
         if (!$route) {
             return $this->errorResponse("Not Found", 404);
         }
