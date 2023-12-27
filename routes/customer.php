@@ -23,5 +23,6 @@ Route::prefix('customer')->middleware('custom_auth:customer')->group(function ()
     Route::get('trips/available', [TripController::class, 'available']);
     Route::get('trips/{id}', [TripController::class, 'find']);
     Route::post('trips/{id}/review', [TripController::class, 'review']);
+    Route::get('trips/{id}/review', [TripController::class, 'getReview']);
     Route::post('trips/{id}/ticket', [TripController::class, 'buyTicket']);
 });

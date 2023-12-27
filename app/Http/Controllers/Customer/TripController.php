@@ -161,6 +161,28 @@ class TripController extends Controller
         }
     }
 
+    public function getReview(Request $request, $tripId)
+    {
+        // search for ended trips in the trips belonging to that user with the given id
+        $trip = DB::selectOne("select * from trips WHERE id = ? AND arrival_time IS NOT NULL AND id in (select trip_id from tickets where customer_id = ?)
+        ", [$tripId, $request->authenticated_id]);
+        if (!$trip) {
+            return $this->errorResponse("Not Found or trip is still ongoing", 404);
+        }
+
+        $review = DB::selectOne("select * from reviews where trip_id = ? AND customer_id = ?", [$trip->id, $request->authenticated_id]);
+        if ($review) {
+            unset($review->seen_at);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'review' => $review
+            ]
+        ]);
+    }
+
     public function review(Request $request, $tripId)
     {
         // search for ended trips in the trips belonging to that user with the given id
@@ -175,20 +197,36 @@ class TripController extends Controller
             'comment' => 'nullable|string|max:600',
         ]);
 
-        $inserted = DB::insert(
-            "Insert INTO reviews 
-        (customer_id, trip_id, stars, comment ) 
-        VALUES (:customer_id, :trip_id, :stars, :comment)",
-            [
-                ":stars" => $request->stars,
-                ":trip_id" => $tripId,
-                ":customer_id" => $request->authenticated_id,
-                ":comment" => $request->comment,
-            ]
-        );
+        $review = DB::selectOne("select * from reviews where trip_id = ? AND customer_id = ?", [$trip->id, $request->authenticated_id]);
+
+        if ($review) {
+            DB::update(
+                "UPDATE reviews SET  stars = :stars, comment = :comment
+           WHERE trip_id = :trip_id AND customer_id = :customer_id",
+                [
+                    ":stars" => $request->stars,
+                    ":trip_id" => $tripId,
+                    ":customer_id" => $request->authenticated_id,
+                    ":comment" => $request->comment,
+                ]
+            );
+        } else {
+            DB::insert(
+                "Insert INTO reviews 
+            (customer_id, trip_id, stars, comment ) 
+            VALUES (:customer_id, :trip_id, :stars, :comment)",
+                [
+                    ":stars" => $request->stars,
+                    ":trip_id" => $tripId,
+                    ":customer_id" => $request->authenticated_id,
+                    ":comment" => $request->comment,
+                ]
+            );
+        }
+
 
         return response()->json([
-            'success' => $inserted,
+            'success' => true,
         ]);
     }
 
