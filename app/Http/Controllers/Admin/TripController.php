@@ -43,6 +43,8 @@ class TripController extends Controller
         if (!$trip) {
             return $this->errorResponse("Not Found", 404);
         }
+
+        $trip->seats = DB::select("select *, not exists(select seat_number from tickets where trip_id = ? AND tickets.seat_number = bus_seats.seat_number) as available from bus_seats where bus_id = ?", [$trip->id, $trip->bus_id]);
         return response()->json([
             'success' => true,
             'data' => [

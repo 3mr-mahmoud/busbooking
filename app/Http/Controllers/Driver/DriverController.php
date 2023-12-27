@@ -53,6 +53,8 @@ class DriverController extends Controller
     {
         $driver = DB::selectOne("select * from drivers where id = " . $request->authenticated_id);
         unset($driver->password);
+
+        $driver->preferred_stations = DB::select("select station_id from driver_preferences where driver_id = ? ", [$request->authenticated_id]);
         return response()->json([
             "success" => true,
             "data" => [

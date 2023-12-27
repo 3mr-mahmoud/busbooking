@@ -30,7 +30,7 @@ class TicketController extends Controller
         LEFT JOIN buses ON trips.bus_id = buses.id
         LEFT JOIN bus_seats ON trips.bus_id = bus_seats.bus_id AND tickets.seat_number = bus_seats.seat_number ";
         if ($tripId) {
-            $ticketsQuery .= " AND tickets.trip_id = ?";
+            $ticketsQuery .= " WHERE tickets.trip_id = ?";
             $bindings[] = $tripId;
         }
 
