@@ -52,7 +52,7 @@ Route::prefix('admin')->middleware('custom_auth:admin')->group(function () {
     Route::get('routes/{id}', [RouteController::class, 'find']);
     Route::post('routes', [RouteController::class, 'store']);
     Route::patch('routes/{id}', [RouteController::class, 'update']);
-    Route::patch('routes/{id}/stations', [RouteController::class, 'updateStations']);
+    // Route::patch('routes/{id}/stations', [RouteController::class, 'updateStations']);
     Route::delete('routes/{id}', [RouteController::class, 'delete']);
 
 

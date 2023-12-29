@@ -98,6 +98,9 @@ class RouteController extends Controller
     {
         $request->validate([
             "name" => "required|string",
+            "stations" => "required|array",
+            "stations.*" => "required|array",
+            "stations.*.*" => "required|integer",
         ]);
 
         DB::update("UPDATE routes SET name = :name  WHERE id = :id", [
@@ -105,20 +108,6 @@ class RouteController extends Controller
             ":name" => $request->name,
         ]);
 
-        return $this->find($routeId);
-    }
-
-    public function updateStations(Request $request, $routeId)
-    {
-        $request->validate([
-            "stations" => "required|array",
-            "stations.*" => "required|array",
-            "stations.*.*" => "required|integer",
-        ]);
-        $result = DB::selectOne("select exists(select 1 from routes where id = ?) as `exists`", [$routeId]);
-        if (!$result->exists) {
-            return $this->errorResponse("Route Not Found", 404);
-        }
         // delete them and reinsert them again
 
         DB::delete("DELETE FROM route_station WHERE route_id = ?", [$routeId]);
@@ -129,6 +118,8 @@ class RouteController extends Controller
 
         return $this->find($routeId);
     }
+
+
 
     public function delete($routeId)
     {

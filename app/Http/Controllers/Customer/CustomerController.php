@@ -20,11 +20,11 @@ class CustomerController extends Controller
         $customer = DB::selectOne("select * from customers where email = ?", [$request->email]);
 
         if (!$customer) {
-            return $this->errorResponse(['email' => ['Provided Credentials are incorrect']]);
+            return $this->errorResponse(['email' => ['Provided Credentials are incorrect']], 422);
         }
 
         if (!Hash::check($request->password, $customer->password)) {
-            return $this->errorResponse(['password' => ['Provided Credentials are incorrect']]);
+            return $this->errorResponse(['password' => ['Provided Credentials are incorrect']], 422);
         }
 
         $token =  Str::random(255);
@@ -122,7 +122,7 @@ class CustomerController extends Controller
 
 
 
-        if ($request->password) {
+        if ($request->password && $request->password != "") {
             $password = Hash::make($request->password);
         } else {
             $password = $customer->password;
